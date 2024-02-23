@@ -13,7 +13,7 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
 
   const { loading, error, data } = useQuery<SingleTransactionData>(
     GetSingleTransaction,
-    { variables: { hash: id } },
+    { variables: { hash: id } }
   );
 
   if (loading) {
@@ -67,6 +67,7 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
           </p>
           <p>
             <span className="font-bold">Amount:</span> {value} ETH
+            {/* for AP-FIX-7 - change the value from WEI to ETH? + display formatting with the numeral package*/}
           </p>
         </div>
       </div>

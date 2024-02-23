@@ -5,7 +5,6 @@ import { TransactionsData } from "../types";
 import { navigate } from "./NaiveRouter";
 
 const TransactionList: React.FC = () => {
-
   const { loading, error, data } =
     useQuery<TransactionsData>(GetAllTransactions);
 
@@ -44,6 +43,7 @@ const TransactionList: React.FC = () => {
                   onClick={() => handleNavigate(hash)}
                 >
                   <span className="font-bold">{value} ETH</span> sent from{" "}
+                  {/* for AP-FIX-7 - change the value from WEI to ETH? + display formatting with the numeral package*/}
                   <span className="font-bold">{from}</span> to{" "}
                   <span className="font-bold">{to}</span>
                 </div>

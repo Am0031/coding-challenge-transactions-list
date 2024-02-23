@@ -3,6 +3,11 @@ import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 
 import { Actions } from "../types";
+//for fix AP-FIX-5
+// export const sendTransaction = (value, sender, recipient) => ({
+//     type: Actions.SendTransaction,
+//     payload: { value, sender, recipient },
+//   });
 
 const SendTransaction: React.FC = () => {
   const dispatch = useDispatch();
@@ -14,8 +19,11 @@ const SendTransaction: React.FC = () => {
     dispatch({
       type: Actions.SendTransaction,
     });
+    //for fix AP-FIX-5
+    // dispatch(sendTransaction(value, sender, recipient));
   }, [dispatch]);
 
+  //for fix AP-FIX-5, add useReducer and state, and required/value/onChange on input fields
   return (
     <>
       <button
@@ -93,6 +101,7 @@ const SendTransaction: React.FC = () => {
                 >
                   Amount:
                 </label>
+                {/* for AP-FIX-7 - label the value at ETH and change from ETH to WEI before submitting? + display formatting with the numeral package*/}
                 <input
                   type="number"
                   id="input-amount"

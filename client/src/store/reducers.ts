@@ -11,6 +11,7 @@ const initialState: RootState = {
 const reducer = (state = initialState, action: any): RootState => {
   switch (action.type) {
     // Define your actions
+    //for fix AP-FIX-4 add redirect to SingleTransaction page on successful send - where?
     default:
       return state;
   }

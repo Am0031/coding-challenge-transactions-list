@@ -14,6 +14,11 @@ import { Actions } from "../types";
 import { SaveTransaction } from "../queries";
 
 function* sendTransaction() {
+  //for fix AP-FIX-5
+  //after adding action between the function brackets ==> (action)
+  // const { value, sender, recipient } = action.payload;
+  //then use these 3 items in the right places below
+
   const provider = new JsonRpcProvider("http://localhost:8545");
 
   const walletProvider = new BrowserProvider(window.web3.currentProvider);

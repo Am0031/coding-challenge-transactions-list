@@ -120,3 +120,8 @@ If you encounter any issues or have questions about the challenge, please feel f
 ## My notes
 
 On windows: before doing docker compose up build, edit file docker_run.sh to be on EOL conversion = Unix(LF)
+
+Convert WEI to ETH:
+num = number of WEI
+base = 10^18
+result = number of ETH = num / base
