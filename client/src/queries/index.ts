@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 
+//AP-FIX-1 The fields queried must match the fields available on the transaction schema
 export const GetAllTransactions = gql`
   query GetAllTransactions {
     getAllTransactions {

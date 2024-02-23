@@ -1,10 +1,21 @@
 import React, { useCallback, useState } from "react";
 import Onboard, { WalletState } from "@web3-onboard/core";
-
+//AP-FIX-2 - Adding @web3-onboard/metamask as per metamask documentation when using web3-onboard library
+import metamaskSDK from "@web3-onboard/metamask";
 import SendTransaction from "./SendTransaction";
 
+//AP-FIX-2 - Adding instantiation of the module as per metamask documentation when using web3-onboard library
+const metamaskSDKWallet = metamaskSDK({
+  options: {
+    extensionOnly: false,
+    dappMetadata: {
+      name: "Example Web3-Onboard Dapp",
+    },
+  },
+});
+
 const onboard = Onboard({
-  wallets: [],
+  wallets: [metamaskSDKWallet],
   chains: [
     {
       id: "123456",
@@ -19,15 +30,24 @@ const Navigation: React.FC = () => {
   const [wallet, setWallet] = useState<WalletState>();
 
   const handleConnect = useCallback(async () => {
-    const wallets = await onboard.connectWallet();
+    try {
+      const wallets = await onboard.connectWallet();
 
-    const [metamaskWallet] = wallets;
+      //AP-FIX-2 adding check on wallets to avoid error if user closes wallet popup before selecting a wallet
+      if (!wallets.length) {
+        return;
+      }
 
-    if (
-      metamaskWallet.label === "MetaMask" &&
-      metamaskWallet.accounts[0].address
-    ) {
-      setWallet(metamaskWallet);
+      const [metamaskWallet] = wallets;
+
+      if (
+        metamaskWallet.label === "MetaMask" &&
+        metamaskWallet.accounts[0].address
+      ) {
+        setWallet(metamaskWallet);
+      }
+    } catch (error) {
+      console.error("wallet connection error", error);
     }
   }, []);
 
