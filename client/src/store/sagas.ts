@@ -6,6 +6,7 @@ import {
   TransactionReceipt,
   BrowserProvider,
   Signer,
+  TransactionRequest,
 } from "ethers";
 
 import apolloClient from "../apollo/client";
@@ -28,14 +29,18 @@ function* sendTransaction() {
     return accounts[random].address;
   };
 
-  const transaction = {
+  const transaction: TransactionRequest = {
     to: randomAddress(),
-    value: 1000000000000000000,
+    value: 0,
   };
 
   try {
-    const txResponse: TransactionResponse =
-      yield signer.sendTransaction(transaction);
+    //AP-FIX-3 Adding the populating of the transaction first before sending it
+    signer.populateTransaction(transaction);
+    const txResponse: TransactionResponse = yield signer.sendTransaction(
+      transaction
+    );
+
     const response: TransactionReceipt = yield txResponse.wait();
 
     const receipt: Transaction = yield response.getTransaction();
@@ -58,7 +63,7 @@ function* sendTransaction() {
       variables,
     });
   } catch (error) {
-    //
+    console.log("error on sendTransation function", error);
   }
 }
 
