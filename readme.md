@@ -6,17 +6,17 @@ You'll be required to fix several issues within a pre-existing application that 
 
 While this looks like a `web3` heavy application, all the issues that you are required to fix or implement are strictly web development related, no specific Ethereum or blockchain domain knowledge will be required to pass this challenge.
 
-In this document we will be referring a lot to *“transactions”*, which in this context are blockchain “sends” executed by a wallet *(everything happens on a simulated blockchain, using a development wallet, all of it runs locally)*.
+In this document we will be referring a lot to _“transactions”_, which in this context are blockchain “sends” executed by a wallet _(everything happens on a simulated blockchain, using a development wallet, all of it runs locally)_.
 
-In essence, those transactions are `async` calls to a few functions that will pass along data to an RPC endpoint somewhere down the line. For this challenge however, you won’t need to know any specific data formats or method names *(related to the blockchain or transactions)*, although everything that we’re doing here can be found explained fully in the documentation of the various libraries we use *(`ethers`, `web3-onboard`, etc)*
+In essence, those transactions are `async` calls to a few functions that will pass along data to an RPC endpoint somewhere down the line. For this challenge however, you won’t need to know any specific data formats or method names _(related to the blockchain or transactions)_, although everything that we’re doing here can be found explained fully in the documentation of the various libraries we use _(`ethers`, `web3-onboard`, etc)_
 
-A wallet is your identity on the blockchain and is represented as a 42 hexadecimal string *(40 characters + the `0x` prefix)*. Other than the wallet library that helps with connecting to the Metamask Browser extension, which will need debugging, you won’t be touching anything specific regarding them.
+A wallet is your identity on the blockchain and is represented as a 42 hexadecimal string _(40 characters + the `0x` prefix)_. Other than the wallet library that helps with connecting to the Metamask Browser extension, which will need debugging, you won’t be touching anything specific regarding them.
 
-The overall application is a list of `Transfer` blockchain transactions that are captured in a database. They consist of a *sender*, *recipient* and *amount* *(amount is denoted in WEI, one ETH being 10 ** 18 WEI. You can use [this calculator](https://eth-converter.com/) if you need quick conversions).*
+The overall application is a list of `Transfer` blockchain transactions that are captured in a database. They consist of a _sender_, _recipient_ and _amount_ _(amount is denoted in WEI, one ETH being 10 \*\* 18 WEI. You can use [this calculator](https://eth-converter.com/) if you need quick conversions)._
 
 Clicking on one of them will take you to a single page detailing that specific transaction.
 
-You have the wallet connection, allowing you to connect the current Metamask wallet to the application. Once your wallet is connected, you can send similar `Transfer` transactions via the UI to other wallet addresses on the chain *(you can see a list of them in the console output of the various docker containers when the environment starts up).*
+You have the wallet connection, allowing you to connect the current Metamask wallet to the application. Once your wallet is connected, you can send similar `Transfer` transactions via the UI to other wallet addresses on the chain _(you can see a list of them in the console output of the various docker containers when the environment starts up)._
 
 ![Transactions List Coding Challenge Screenshot](/assets/screenshot-transactions-list-3.png)
 
@@ -24,7 +24,7 @@ You have the wallet connection, allowing you to connect the current Metamask wal
 
 This app has been set up using the following tech stack and is a simulation of what your will be expected to use in your day to day work:
 
-- **Frontend:** `React` *(using `TypeScript`)*, `Redux`, `Apollo Client`, `Tailwind CSS`
+- **Frontend:** `React` _(using `TypeScript`)_, `Redux`, `Apollo Client`, `Tailwind CSS`
 - **Backend:** `Node.js` server, `GraphQL`, `MongoDB`
 - **Blockchain:** Local `Ganache` Ethereum chain
 - **Containerization:** `Docker`
@@ -49,8 +49,8 @@ To successfully set up and run this challenge, you'll need the following install
 
 ## Notes, Tips and Tricks
 
-- Changes to the client will automatically reflect in your client *(hot reloading)*.
-- Initial database values can be created via the UI *(after you’ve fixed no# 2. and 3.)* or by using the **`generateTransactions`** script, found in the `scripts` folder of the client.
+- Changes to the client will automatically reflect in your client _(hot reloading)_.
+- Initial database values can be created via the UI _(after you’ve fixed no# 2. and 3.)_ or by using the **`generateTransactions`** script, found in the `scripts` folder of the client.
 - If you need it, manually clean up the `mongo` container between stack restarts to avoid stale data.
 - Use the Metamask browser extension and connect it to the localhost Ganache network. This is important, otherwise you’re transactions will not make it to your local development chain.
 - Wallet address and private key will be listed in the console when initializing the stack, make a note of them, as you’ll need them either to use directly, or as recipients.
@@ -70,7 +70,7 @@ The tasks for this challenge are listed below, with the exception of one, all be
 
 ### 2. Wallet Connection
 
-- Debug and fix the wallet library *(`web3-onboard`)* issue preventing proper Metamask connection.
+- Debug and fix the wallet library _(`web3-onboard`)_ issue preventing proper Metamask connection.
 
 ### 3. Redux Saga
 
@@ -82,7 +82,7 @@ The tasks for this challenge are listed below, with the exception of one, all be
 
 ### 5. Wire in the Form
 
-- Connect the *Send* transaction form inputs with the form and pass along the required values to the saga.
+- Connect the _Send_ transaction form inputs with the form and pass along the required values to the saga.
 - Bonus points for introducing basic form validation and closing the modal after a successful send.
 
 ### 6. UI
@@ -91,10 +91,9 @@ The tasks for this challenge are listed below, with the exception of one, all be
 
 ![transactions-list-mobile.png](/assets/transactions-list-mobile.png)
 
-
 ### 7. Human Readable Values
 
-- Convert the transaction values to a human-readable format *(from WEI to ETH)*, dealing with the respective decimals, and applying the conversion to both the list, the single page transaction views and accounting for this when submitting the form.
+- Convert the transaction values to a human-readable format _(from WEI to ETH)_, dealing with the respective decimals, and applying the conversion to both the list, the single page transaction views and accounting for this when submitting the form.
 
 ## Expected Completion Time
 
@@ -117,3 +116,7 @@ Your submission will be evaluated on the following:
 ## **Support**
 
 If you encounter any issues or have questions about the challenge, please feel free to reach out to `support@colony.io`.
+
+## My notes
+
+On windows: before doing docker compose up build, edit file docker_run.sh to be on EOL conversion = Unix(LF)
