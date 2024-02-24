@@ -51,21 +51,21 @@ const Navigation: React.FC = () => {
     }
   }, []);
 
-  //for fix AP-FIX-6 - amended classes
+  //AP-FIX-6 - amended classes for buttons display on small screens (hiding address tag /only showing send button on small screens)
   return (
     <header className="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-ful text-sm py-4 bg-gray-800">
-      <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
+      <nav className="max-w-[85rem] w-full mx-auto px-4 flex sm:items-center justify-between">
         <div className="flex items-center justify-between">
           <a className="flex-none text-xl font-semibold text-white" href=".">
             Transactions List
           </a>
         </div>
-        <div className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow sm:block">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:pl-5">
+        <div className="hs-collapse overflow-hidden transition-all duration-300 sm:block">
+          <div className="flex gap-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:pl-5">
             {wallet && (
               <>
                 <SendTransaction />
-                <p className="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border-2 border-gray-200 font-semibold text-gray-200 text-sm">
+                <p className="py-3 px-4 hidden sm:block inline-flex justify-center items-center gap-2 rounded-md border-2 border-gray-200 font-semibold text-gray-200 text-sm">
                   {wallet.accounts[0].address}
                 </p>
               </>
