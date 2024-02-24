@@ -31,4 +31,3 @@ export type Action<P> = {
 export enum Actions {
   SendTransaction = "SEND_TRANSACTION",
 }
-

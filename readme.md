@@ -122,6 +122,9 @@ If you encounter any issues or have questions about the challenge, please feel f
 On windows: before doing docker compose up build, edit file docker_run.sh to be on EOL conversion = Unix(LF)
 
 Convert WEI to ETH:
-num = number of WEI
+WEI = number of WEI
 base = 10^18
-result = number of ETH = num / base
+result = number of ETH = WEI / base
+ETH x base ==> WEI
+
+could go further by adding a way to populate my wallet address in sender input if I want

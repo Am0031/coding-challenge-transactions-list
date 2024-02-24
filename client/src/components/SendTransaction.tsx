@@ -1,44 +1,99 @@
-import React, { useCallback } from "react";
+import React, { FormEvent, useReducer, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useForm } from "react-hook-form";
 
 import { Actions } from "../types";
-//for fix AP-FIX-5
-// export const sendTransaction = (value, sender, recipient) => ({
-//     type: Actions.SendTransaction,
-//     payload: { value, sender, recipient },
-//   });
+import { isValidField } from "../utils/validField";
+import { convertToWei, formattedNumberWithCommas } from "../utils/formatNumber";
 
 const SendTransaction: React.FC = () => {
   const dispatch = useDispatch();
-  const { handleSubmit } = useForm();
 
-  const onSubmit = (data: any) => console.log(data);
+  //AP-FIX-5 - Added state to monitor inputs values and errors
+  const initialState = {
+    sender: "",
+    recipient: "",
+    amount: 0,
+    error: {
+      sender: null,
+      recipient: null,
+      amount: null,
+    },
+  };
+  const reducer = (state: any, action: any) => {
+    switch (action.type) {
+      case "sender":
+        return { ...state, sender: action.value };
+      case "recipient":
+        return { ...state, recipient: action.value };
+      case "amount":
+        return { ...state, amount: action.value };
+      case "error":
+        return { ...state, error: action.value };
+      case "clearAll":
+        return initialState;
+      default:
+        break;
+    }
+  };
+  const [state, setState] = useReducer(reducer, initialState);
 
-  const handleDispatch = useCallback(() => {
+  //AP-FIX-EXTRA - Changed form display from data-hs-overlay/hs-overlay-open classes to state, values cleared on close
+  const [open, setOpen] = useState(false);
+  const dismiss = () => {
+    setOpen(!open);
+    setState({ type: "clearAll", value: null });
+  };
+
+  //AP-FIX-5 - dispatch with payload so form data is available in the saga
+  const handleDispatch = (e: FormEvent) => {
+    e.preventDefault();
+    //field validation - value needs to be a type address: 0x{40 characters from [0-9a-fA-F]}
+    let errors: any = {};
+    const isSenderValid =
+      state.sender.length > 0 && isValidField("sender", state.sender);
+    if (!isSenderValid) errors["sender"] = "Invalid input";
+
+    const isRecipientValid =
+      state.recipient.length > 0 && isValidField("recipient", state.recipient);
+    if (!isRecipientValid) errors["recipient"] = "Invalid input";
+
+    const isAmountValid = isValidField("amount", state.amount);
+    if (!isAmountValid) errors["amount"] = "Invalid input";
+
+    if (Object.keys(errors).length > 0) {
+      setState({ type: "error", value: errors });
+      return;
+    }
+
     dispatch({
       type: Actions.SendTransaction,
+      payload: {
+        value: convertToWei(state.amount),
+        sender: state.sender,
+        recipient: state.recipient,
+      },
     });
-    //for fix AP-FIX-5
-    // dispatch(sendTransaction(value, sender, recipient));
-  }, [dispatch]);
+    dismiss();
+  };
 
-  //for fix AP-FIX-5, add useReducer and state, and required/value/onChange on input fields
   return (
     <>
       <button
-        data-hs-overlay="#hs-basic-modal"
         type="button"
+        onClick={() => setOpen(true)}
         className="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm"
       >
         Send
       </button>
-      <form onSubmit={handleSubmit(onSubmit)}>
+
+      <form onSubmit={handleDispatch}>
         <div
           id="hs-basic-modal"
-          className="hs-overlay hidden w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto bg-black bg-opacity-60"
+          className={`hs-overlay w-full h-full fixed top-0 left-0 z-[60] overflow-x-hidden overflow-y-auto bg-black bg-opacity-60 ${
+            !open && "hidden"
+          }`}
         >
-          <div className="hs-overlay-open:opacity-100 hs-overlay-open:duration-500 opacity-100 transition-all w-full m-3 mx-auto flex flex-col h-full items-center justify-center">
+          <div className="opacity-100  opacity-100 transition-all w-full m-3 mx-auto flex flex-col h-full items-center justify-center">
             <div className="bg-white border shadow-sm rounded-xl w-modal">
               <div className="flex justify-between items-center py-3 px-4 border-b">
                 <h3 className="font-bold text-gray-800 text-xl">
@@ -47,7 +102,7 @@ const SendTransaction: React.FC = () => {
                 <button
                   type="button"
                   className="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center h-8 w-8 rounded-md text-gray-500 hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-sm"
-                  data-hs-overlay="#hs-basic-modal"
+                  onClick={dismiss}
                 >
                   <span className="sr-only">Close</span>
                   <svg
@@ -75,13 +130,21 @@ const SendTransaction: React.FC = () => {
                 >
                   Sender:
                 </label>
+                {/* //AP-FIX-5 - Changing input attributes to make them usable and access their value, also removed class 'pointer-event-none' */}
                 <input
                   type="text"
                   id="input-sender"
-                  className="opacity-70 pointer-events-none py-3 px-4 block bg-gray-50 border-gray-800 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 w-full"
+                  value={state.sender}
+                  onChange={(e) =>
+                    setState({ type: "sender", value: e.target.value })
+                  }
+                  className="opacity-70 py-3 px-4 block bg-gray-50 border-gray-800 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 w-full"
                   placeholder="Sender Address (Autocompleted)"
-                  disabled
+                  required
                 />
+                {!!state.error.sender && (
+                  <p className="text-red-600">{state.error.sender}</p>
+                )}
                 <label
                   htmlFor="input-recipient"
                   className="block text-sm font-bold my-2"
@@ -91,37 +154,54 @@ const SendTransaction: React.FC = () => {
                 <input
                   type="text"
                   id="input-recipient"
-                  className="opacity-70 pointer-events-none py-3 px-4 block bg-gray-50 border-gray-800 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 w-full"
+                  value={state.recipient}
+                  onChange={(e) =>
+                    setState({ type: "recipient", value: e.target.value })
+                  }
+                  className="opacity-70 py-3 px-4 block bg-gray-50 border-gray-800 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 w-full"
                   placeholder="Recipient Address"
-                  disabled
+                  required
                 />
+                {!!state.error.recipient && (
+                  <p className="text-red-600">{state.error.recipient}</p>
+                )}
                 <label
                   htmlFor="input-amount"
                   className="block text-sm font-bold my-2"
                 >
                   Amount:
                 </label>
-                {/* for AP-FIX-7 - label the value at ETH and change from ETH to WEI before submitting? + display formatting with the numeral package*/}
+                {/* for AP-FIX-7 - label the value as ETH and change from ETH to WEI before submitting? + display formatting with the numeral package*/}
                 <input
                   type="number"
                   id="input-amount"
-                  className="opacity-70 pointer-events-none py-3 px-4 block bg-gray-50 border-gray-800 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 w-full"
+                  value={state.amount === 0 ? "" : state.amount}
+                  onChange={(e) =>
+                    setState({ type: "amount", value: e.target.value })
+                  }
+                  className="opacity-70 py-3 px-4 block bg-gray-50 border-gray-800 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 w-full"
                   placeholder="Amount"
-                  disabled
+                  required
                 />
+                {!!state.error.amount && (
+                  <p className="text-red-600">{state.error.amount}</p>
+                )}
+                <p className="text-gray-600">
+                  You are sending {formattedNumberWithCommas(state.amount)} ETH.
+                  This represents{" "}
+                  {formattedNumberWithCommas(convertToWei(state.amount))} WEI.
+                </p>
               </div>
               <div className="flex justify-end items-center gap-x-2 py-3 px-4 border-t">
                 <button
                   type="button"
                   className="hs-dropdown-toggle py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm"
-                  data-hs-overlay="#hs-basic-modal"
+                  onClick={dismiss}
                 >
                   Close
                 </button>
                 <button
-                  type="button"
-                  onClick={handleDispatch}
-                  data-hs-overlay="#hs-basic-modal"
+                  type="submit"
                   className="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm"
                 >
                   Send

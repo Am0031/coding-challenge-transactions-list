@@ -12,12 +12,11 @@ import {
 import apolloClient from "../apollo/client";
 import { Actions } from "../types";
 import { SaveTransaction } from "../queries";
+import { convertToWei } from "../utils/formatNumber";
 
-function* sendTransaction() {
-  //for fix AP-FIX-5
-  //after adding action between the function brackets ==> (action)
-  // const { value, sender, recipient } = action.payload;
-  //then use these 3 items in the right places below
+function* sendTransaction(action: any) {
+  //AP-FIX-5 - access payload information
+  const { value, sender, recipient } = action.payload;
 
   const provider = new JsonRpcProvider("http://localhost:8545");
 
@@ -34,13 +33,16 @@ function* sendTransaction() {
     return accounts[random].address;
   };
 
+  //AP-FIX-5 - assign payload information to the transaction
   const transaction: TransactionRequest = {
-    to: randomAddress(),
-    value: 0,
+    to: randomAddress(), //could take recipient if it was a valid one
+    // value: 10, //amount passed here in ETH or WEI?
   };
 
+  console.log(transaction, sender, recipient, value);
+
   try {
-    //AP-FIX-3 Adding the populating of the transaction first before sending it
+    //AP-FIX-3 Added the populating of the transaction first before sending it
     signer.populateTransaction(transaction);
     const txResponse: TransactionResponse = yield signer.sendTransaction(
       transaction
