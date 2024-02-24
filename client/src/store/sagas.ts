@@ -1,4 +1,4 @@
-import { takeEvery } from "redux-saga/effects";
+import { takeEvery, put } from "redux-saga/effects";
 import {
   JsonRpcProvider,
   Transaction,
@@ -36,7 +36,7 @@ function* sendTransaction(action: any) {
   //AP-FIX-5 - assign payload information to the transaction
   const transaction: TransactionRequest = {
     to: randomAddress(), //could take recipient if it was a valid one
-    // value: 10, //amount passed here in ETH or WEI?
+    value: 0, //amount passed here in ETH or WEI?
   };
 
   console.log(transaction, sender, recipient, value);
@@ -69,6 +69,9 @@ function* sendTransaction(action: any) {
       mutation: SaveTransaction,
       variables,
     });
+
+    //AP-FIX-4 - dispatch an action with the transaction hash for the new created transaction
+    yield put({ type: Actions.TransactionSuccess, payload: receipt.hash });
   } catch (error) {
     console.log("error on sendTransation function", error);
   }

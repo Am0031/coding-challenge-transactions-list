@@ -3,6 +3,7 @@ import { useQuery } from "@apollo/client";
 import { GetAllTransactions } from "../queries";
 import { TransactionsData } from "../types";
 import { navigate } from "./NaiveRouter";
+import { convertToEth, formattedNumberWithCommas } from "../utils/formatNumber";
 
 const TransactionList: React.FC = () => {
   const { loading, error, data } =
@@ -42,8 +43,11 @@ const TransactionList: React.FC = () => {
                   className="bg-white shadow-sm p-4 md:p-5 border rounded border-gray-300 mt-3 hover:border-blue-500 cursor-pointer"
                   onClick={() => handleNavigate(hash)}
                 >
-                  <span className="font-bold">{value} ETH</span> sent from{" "}
-                  {/* for AP-FIX-7 - change the value from WEI to ETH? + display formatting with the numeral package*/}
+                  <span className="font-bold">
+                    {formattedNumberWithCommas(convertToEth(value))} ETH
+                  </span>{" "}
+                  sent from{" "}
+                  {/*AP-FIX-7 - change the value from WEI to ETH + display formatting with the numeral package*/}
                   <span className="font-bold">{from}</span> to{" "}
                   <span className="font-bold">{to}</span>
                 </div>

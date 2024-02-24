@@ -3,6 +3,7 @@ import { useQuery } from "@apollo/client";
 import { GetSingleTransaction } from "../queries";
 import { SingleTransactionData } from "../types";
 import { navigate } from "./NaiveRouter";
+import { convertToEth, formattedNumberWithCommas } from "../utils/formatNumber";
 
 interface SingleTransactionProps {
   id: string | null;
@@ -66,8 +67,9 @@ const SingleTransaction: React.FC<SingleTransactionProps> = ({ id }) => {
             <span className="font-bold">Recipient Address:</span> {to}
           </p>
           <p>
-            <span className="font-bold">Amount:</span> {value} ETH
-            {/* for AP-FIX-7 - change the value from WEI to ETH? + display formatting with the numeral package*/}
+            <span className="font-bold">Amount:</span>{" "}
+            {value && formattedNumberWithCommas(convertToEth(value))} ETH
+            {/*AP-FIX-7 - change the value from WEI to ETH + display formatting with the numeral package*/}
           </p>
         </div>
       </div>

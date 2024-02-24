@@ -1,16 +1,20 @@
-import React, { FormEvent, useReducer, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { FormEvent, useEffect, useReducer, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { Actions } from "../types";
+import { Actions, SendTransactionProps } from "../types";
 import { isValidField } from "../utils/validField";
 import { convertToWei, formattedNumberWithCommas } from "../utils/formatNumber";
+import { RootState } from "../store/reducers";
+import { navigate } from "./NaiveRouter";
 
-const SendTransaction: React.FC = () => {
+//AP-FIX-EXTRA - added prop to component to auto-populate the sender field with the user's wallet's address
+const SendTransaction: React.FC<SendTransactionProps> = ({ senderAddress }) => {
+  const transactionId = useSelector((state: RootState) => state.transactionId);
   const dispatch = useDispatch();
 
   //AP-FIX-5 - Added state to monitor inputs values and errors
   const initialState = {
-    sender: "",
+    sender: senderAddress ? senderAddress : "",
     recipient: "",
     amount: 0,
     error: {
@@ -43,6 +47,16 @@ const SendTransaction: React.FC = () => {
     setOpen(!open);
     setState({ type: "clearAll", value: null });
   };
+
+  //AP-FIX-4 Redirect to the single transaction page after successful dispatch (transaction creation) and state update
+  useEffect(() => {
+    if (transactionId) {
+      navigate(`./transactions/${transactionId}`);
+      dispatch({
+        type: Actions.ClearTransactionId,
+      });
+    }
+  }, [transactionId, navigate]);
 
   //AP-FIX-5 - dispatch with payload so form data is available in the saga
   const handleDispatch = (e: FormEvent) => {
@@ -171,7 +185,6 @@ const SendTransaction: React.FC = () => {
                 >
                   Amount:
                 </label>
-                {/* for AP-FIX-7 - label the value as ETH and change from ETH to WEI before submitting? + display formatting with the numeral package*/}
                 <input
                   type="number"
                   id="input-amount"
@@ -186,6 +199,7 @@ const SendTransaction: React.FC = () => {
                 {!!state.error.amount && (
                   <p className="text-red-600">{state.error.amount}</p>
                 )}
+                {/*AP-FIX-7 - show equivalent ETH and WEI values*/}
                 <p className="text-gray-600">
                   You are sending {formattedNumberWithCommas(state.amount)} ETH.
                   This represents{" "}

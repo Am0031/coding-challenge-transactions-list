@@ -126,5 +126,3 @@ WEI = number of WEI
 base = 10^18
 result = number of ETH = WEI / base
 ETH x base ==> WEI
-
-could go further by adding a way to populate my wallet address in sender input if I want

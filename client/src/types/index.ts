@@ -30,4 +30,10 @@ export type Action<P> = {
 
 export enum Actions {
   SendTransaction = "SEND_TRANSACTION",
+  TransactionSuccess = "TRANSACTION_SUCCESS",
+  ClearTransactionId = "CLEAR_TRANSACTION_ID",
+}
+
+export interface SendTransactionProps {
+  senderAddress: string;
 }
