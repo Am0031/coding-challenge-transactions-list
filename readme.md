@@ -14,10 +14,14 @@ This app has been set up using the following tech stack:
 ## Setting up and Starting the Project
 
 - Install Metamask web extension - Ganache network for local development and use provided keys to get some development Ethereum in wallet
-- Clone the repository
-- Run the docker containers: **`docker compose up --build`**
-- Stop the docker containers via: **`docker compose down`**
-- Mongo: option to adjust port to 27018:27017 to avoid any classhes with local mongodb instance
+- Running the docker containers: **`docker compose up --build`**
+- Stopping the docker containers via: **`docker compose down`**
+
+### Notes
+
+When using the project on windows: before docker compose up --build, edit file docker_run.sh to be on EOL conversion = Unix(LF)
+
+Mongo: option to adjust port to 27018:27017 to avoid any clash with local mongodb instance
 
 ## Accessing the Application
 
@@ -98,7 +102,3 @@ Corresponding transaction in the DB:
 ## Submitting
 
 Repo link to `webappdev@colony.io`
-
-## Notes
-
-When using the project on windows: before docker compose up --build, edit file docker_run.sh to be on EOL conversion = Unix(LF)
