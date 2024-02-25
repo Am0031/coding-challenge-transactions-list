@@ -84,11 +84,15 @@ The transactions use the WEI unit but we want to display ETH for user experience
 Resolution: setting up the relevant utils functions for conversion and using the numeral package, we can now pass the value in the correct unit and display the values in ETH on transaction cards and details, and display both as information to the user on the form.
 
 Conversion display at bottom of form:
+
 ![conversion-form](image-2.png)
 
 Transaction details on single transaction page:
+
 ![transaction-details-page](image-3.png)
+
 Corresponding transaction in the DB:
+
 ![transaction-details-db](image-4.png)
 
 ## Submitting
