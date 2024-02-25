@@ -30,6 +30,8 @@ Mongo: option to adjust port to 27018:27017 to avoid any clash with local mongod
 
 ## Tasks and Resolution measures
 
+Resolutions are flagged in the code with comments starting with 'AP-FIX'.
+
 ### 1. GraphQL Query
 
 The transaction document has the fields: gasLimit, gasPrice, to, from, value, data, chainId, hash. Any other field inserted in the graphql string would result in a mismatch between query and schema and a graphql validation error.
