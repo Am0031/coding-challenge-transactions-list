@@ -1,5 +1,6 @@
 import numeral from "numeral";
 
+//AP-FIX-7 - Util functions for value conversion
 export const formattedNumberWithCommas = (num: number) =>
   numeral(num).format("0,0.00");
 

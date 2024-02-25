@@ -6,8 +6,10 @@ import { navigate } from "./NaiveRouter";
 import { convertToEth, formattedNumberWithCommas } from "../utils/formatNumber";
 
 const TransactionList: React.FC = () => {
-  const { loading, error, data } =
-    useQuery<TransactionsData>(GetAllTransactions);
+  const { loading, error, data } = useQuery<TransactionsData>(
+    GetAllTransactions,
+    { fetchPolicy: "cache-and-network" }
+  );
 
   const handleNavigate = (hash: string) => navigate(`/transaction/${hash}`);
 

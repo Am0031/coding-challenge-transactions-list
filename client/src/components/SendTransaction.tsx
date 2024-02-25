@@ -51,12 +51,12 @@ const SendTransaction: React.FC<SendTransactionProps> = ({ senderAddress }) => {
   //AP-FIX-4 Redirect to the single transaction page after successful dispatch (transaction creation) and state update
   useEffect(() => {
     if (transactionId) {
-      navigate(`./transactions/${transactionId}`);
+      navigate(`./transaction/${transactionId}`);
       dispatch({
         type: Actions.ClearTransactionId,
       });
     }
-  }, [transactionId, navigate]);
+  }, [transactionId, dispatch]);
 
   //AP-FIX-5 - dispatch with payload so form data is available in the saga
   const handleDispatch = (e: FormEvent) => {

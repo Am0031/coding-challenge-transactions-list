@@ -1,128 +1,106 @@
 # Web App Developer Coding Challenge
 
-This coding challenge assesses your proficiency in full-stack web development, focusing on `React`, `Redux`, `GraphQL`, `Node.js`, `MongoDB`, and working with the `Ethereum` blockchain.
+This coding challenge is to fix several issues within a pre-existing application that simulates Ethereum native token transactions.
 
-You'll be required to fix several issues within a pre-existing application that simulates Ethereum native token transactions.
-
-While this looks like a `web3` heavy application, all the issues that you are required to fix or implement are strictly web development related, no specific Ethereum or blockchain domain knowledge will be required to pass this challenge.
-
-In this document we will be referring a lot to _“transactions”_, which in this context are blockchain “sends” executed by a wallet _(everything happens on a simulated blockchain, using a development wallet, all of it runs locally)_.
-
-In essence, those transactions are `async` calls to a few functions that will pass along data to an RPC endpoint somewhere down the line. For this challenge however, you won’t need to know any specific data formats or method names _(related to the blockchain or transactions)_, although everything that we’re doing here can be found explained fully in the documentation of the various libraries we use _(`ethers`, `web3-onboard`, etc)_
-
-A wallet is your identity on the blockchain and is represented as a 42 hexadecimal string _(40 characters + the `0x` prefix)_. Other than the wallet library that helps with connecting to the Metamask Browser extension, which will need debugging, you won’t be touching anything specific regarding them.
+42 hexadecimal string _(40 characters + the `0x` prefix)_
 
 The overall application is a list of `Transfer` blockchain transactions that are captured in a database. They consist of a _sender_, _recipient_ and _amount_ _(amount is denoted in WEI, one ETH being 10 \*\* 18 WEI. You can use [this calculator](https://eth-converter.com/) if you need quick conversions)._
-
-Clicking on one of them will take you to a single page detailing that specific transaction.
-
-You have the wallet connection, allowing you to connect the current Metamask wallet to the application. Once your wallet is connected, you can send similar `Transfer` transactions via the UI to other wallet addresses on the chain _(you can see a list of them in the console output of the various docker containers when the environment starts up)._
 
 ![Transactions List Coding Challenge Screenshot](/assets/screenshot-transactions-list-3.png)
 
 ## Tech Stack
 
-This app has been set up using the following tech stack and is a simulation of what your will be expected to use in your day to day work:
+This app has been set up using the following tech stack:
 
 - **Frontend:** `React` _(using `TypeScript`)_, `Redux`, `Apollo Client`, `Tailwind CSS`
 - **Backend:** `Node.js` server, `GraphQL`, `MongoDB`
 - **Blockchain:** Local `Ganache` Ethereum chain
 - **Containerization:** `Docker`
 
-## Prerequisites
+## Setting up and Starting the Project
 
-To successfully set up and run this challenge, you'll need the following installed:
-
-- `Docker`: Version `24` or newer: [https://www.docker.com/](https://www.docker.com/)
-- `Metamask` browser extension: [https://metamask.io/](https://metamask.io/)
-
-## Starting the Project
-
+- Install Metamask web extension - Ganache network for local development and use provided keys to get some development Ethereum in wallet
 - Clone the repository
 - Run the docker containers: **`docker compose up --build`**
 - Stop the docker containers via: **`docker compose down`**
+- Mongo: option to adjust port to 27018:27017 to avoid any classhes with local mongodb instance
 
 ## Accessing the Application
 
 - Frontend: [http://localhost:3000](http://localhost:3000)
 - GraphQL Playground: [http://localhost:4000/graphql](http://localhost:4000/graphql)
 
-## Notes, Tips and Tricks
-
-- Changes to the client will automatically reflect in your client _(hot reloading)_.
-- Initial database values can be created via the UI _(after you’ve fixed no# 2. and 3.)_ or by using the **`generateTransactions`** script, found in the `scripts` folder of the client.
-- If you need it, manually clean up the `mongo` container between stack restarts to avoid stale data.
-- Use the Metamask browser extension and connect it to the localhost Ganache network. This is important, otherwise you’re transactions will not make it to your local development chain.
-- Wallet address and private key will be listed in the console when initializing the stack, make a note of them, as you’ll need them either to use directly, or as recipients.
-- Since everything is containerized, you won't actually have node modules installed locally, meaning you're editor might complain about "missing" imports. Feel free to install them locally if that aids you in your work _(in `/client` and `/server` respectively)_.
-
-![ganache-accounts-2.png](/assets/ganache-accounts-2.png)
-
-- Connect to local the Ganache network at [http://localhost:8545](http://localhost:8545)
-
-## The Challenge
-
-The tasks for this challenge are listed below, with the exception of one, all being bug fixes. They are representative of what you will find during your daily work.
+## Tasks and Resolution measures
 
 ### 1. GraphQL Query
 
-- Fix the query responsible for fetching the transactions list on the main page
+The transaction document has the fields: gasLimit, gasPrice, to, from, value, data, chainId, hash. Any other field inserted in the graphql string would result in a mismatch between query and schema and a graphql validation error.
+
+Resolution: The GetAllTransactions query string had the additional field 'receipt' which was removed.
 
 ### 2. Wallet Connection
 
-- Debug and fix the wallet library _(`web3-onboard`)_ issue preventing proper Metamask connection.
+The metamask connection can be established usign different third parties. Here we are using Web3-Onboard. As per the [Metamask documentation](https://docs.metamask.io/wallet/how-to/use-sdk/3rd-party-libraries/web3-onboard/), the required packaged are: @web3-onboard/core, @web3-onboard/injected-wallets and @web3-onboard/metamask.
+
+Resolution: Installation and import of the @web3-onboard/metamask, so we can instantiate the wallet with metamaskSDK, and pass this wallet in the wallets array of the Onboard options object.
 
 ### 3. Redux Saga
 
-- Investigate and fix the **`SEND_TRANSACTION`** saga, so that transactions reach the chain and receipts are saved in the database.
+The **`SEND_TRANSACTION`** saga is in charge of processing a transaction request and saving it in the database. This process uses the ethers package but the process is failing at the sendTransaction stage.
+
+Resolution: from the ethers' [source code](https://github.com/ethers-io/ethers.js/blob/master/packages/abstract-signer/src.ts/index.ts), the first step is to populate the transaction with signer.populateTransaction(transaction) so we added this step to the process.
 
 ### 4. Navigation & Redirection
 
-- Redirect to the new transaction's location after a successful send
+On successful transaction, the app needs to navigate to the new transaction's location at /transaction/{hash}.
+
+Resolution: these steps are added:
+
+- Adding a dispatch action after the successful DB mutation to save the new transaction hash in the redux store (under transactionId)
+- Monitoring the transactionId in the SendTransaction component. On population, navigate to the single transaction page for that transaction
 
 ### 5. Wire in the Form
 
-- Connect the _Send_ transaction form inputs with the form and pass along the required values to the saga.
-- Bonus points for introducing basic form validation and closing the modal after a successful send.
+The _Send_ button in the navigation bar opens a form to send a transaction with 3 inputs: sender, recipient, amount, but the form is not functional.
+
+Resolution: these changes are applied:
+
+- the inputs fields are made accessible (remove disabled attribute) and required
+- the component is made responsible of monitoring the inputs' changes with the react hook useReducer
+- the 'Send' button at the bottom of the form is swap to type submit for basic validation on required fields
+- On send, further validation is applied to each field: sender and recipients values are expected to follow the format of a 42 hexadecimal string _(40 characters + the `0x` prefix)_, and the amount is required to be above 0. On validation fail, errors are reflected in the component state and corresponding error messages displayed under each input.
+- On successful validation and dispatch, the modal is closed and inputs' values are reset.
+- On Cancel or X button click, the modal is closed and inputs' values are reset.
+- The sender field is prepopulated with the address of the connected wallet.
+- The dispatch action is given a payload with the validated inputs so that the sendTransaction saga function has access to it and can populate transaction details accordingly.
 
 ### 6. UI
 
-- Fix the styling issue causing the "Connect Wallet" button to disappear under certain screen widths.
+In the navigation bar, the "Connect Wallet" button and the 'Send' button disappear under certain screen widths (640px).
 
-![transactions-list-mobile.png](/assets/transactions-list-mobile.png)
+Resolution: the tailwind classes are changed on elements in the Navigation component so that it allows better flex behaviour, and the address box is hidden on small screens for a better navbar layout.
+
+![mobile-view-connect](image.png)
+![mobile-view-send](image-1.png)
 
 ### 7. Human Readable Values
 
-- Convert the transaction values to a human-readable format _(from WEI to ETH)_, dealing with the respective decimals, and applying the conversion to both the list, the single page transaction views and accounting for this when submitting the form.
+The transactions use the WEI unit but we want to display ETH for user experience so we want to convert the transaction values to a human-readable format _(from WEI to ETH)_. This is relevant for the transaction list, the single page transaction views and the form.
 
-## Expected Completion Time
+Resolution: setting up the relevant utils functions for conversion and using the numeral package, we can now pass the value in the correct unit and display the values in ETH on transaction cards and details, and display both as information to the user on the form.
 
-- `1`-`3` hours
+Conversion display at bottom of form:
+![conversion-form](image-2.png)
+
+Transaction details on single transaction page:
+![transaction-details-page](image-3.png)
+Corresponding transaction in the DB:
+![transaction-details-db](image-4.png)
 
 ## Submitting
 
-- Fork the repository and make your changes.
-- Send the link to your repo to `webappdev@colony.io` _(either a public repo or a private one)_
+Repo link to `webappdev@colony.io`
 
-## **Evaluation Criteria**
+## Notes
 
-Your submission will be evaluated on the following:
-
-- **Code Quality:** Clean, readable, and efficient code.
-- **Functionality:** All tasks are properly completed and the app functions as intended.
-- **Documentation:** Clear comments explaining your thought process and approach.
-- **Bonus Points:** Implementation of additional features, improvements, or innovative solutions.
-
-## **Support**
-
-If you encounter any issues or have questions about the challenge, please feel free to reach out to `support@colony.io`.
-
-## My notes
-
-On windows: before doing docker compose up build, edit file docker_run.sh to be on EOL conversion = Unix(LF)
-
-Convert WEI to ETH:
-WEI = number of WEI
-base = 10^18
-result = number of ETH = WEI / base
-ETH x base ==> WEI
+When using the project on windows: before docker compose up --build, edit file docker_run.sh to be on EOL conversion = Unix(LF)

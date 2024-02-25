@@ -12,11 +12,11 @@ import {
 import apolloClient from "../apollo/client";
 import { Actions } from "../types";
 import { SaveTransaction } from "../queries";
-import { convertToWei } from "../utils/formatNumber";
 
-function* sendTransaction(action: any) {
+function* sendTransaction(action: any): any {
   //AP-FIX-5 - access payload information
   const { value, sender, recipient } = action.payload;
+  console.log(value, sender, recipient);
 
   const provider = new JsonRpcProvider("http://localhost:8545");
 
@@ -36,17 +36,13 @@ function* sendTransaction(action: any) {
   //AP-FIX-5 - assign payload information to the transaction
   const transaction: TransactionRequest = {
     to: randomAddress(), //could take recipient if it was a valid one
-    value: 0, //amount passed here in ETH or WEI?
+    value: 0, //amount passed here in WEI from form
   };
-
-  console.log(transaction, sender, recipient, value);
 
   try {
     //AP-FIX-3 Added the populating of the transaction first before sending it
-    signer.populateTransaction(transaction);
-    const txResponse: TransactionResponse = yield signer.sendTransaction(
-      transaction
-    );
+    const tx = yield signer.populateTransaction(transaction);
+    const txResponse: TransactionResponse = yield signer.sendTransaction(tx);
 
     const response: TransactionReceipt = yield txResponse.wait();
 
@@ -64,12 +60,10 @@ function* sendTransaction(action: any) {
         hash: receipt.hash,
       },
     };
-
     yield apolloClient.mutate({
       mutation: SaveTransaction,
       variables,
     });
-
     //AP-FIX-4 - dispatch an action with the transaction hash for the new created transaction
     yield put({ type: Actions.TransactionSuccess, payload: receipt.hash });
   } catch (error) {
