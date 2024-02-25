@@ -2,12 +2,6 @@
 
 This coding challenge is to fix several issues within a pre-existing application that simulates Ethereum native token transactions.
 
-42 hexadecimal string _(40 characters + the `0x` prefix)_
-
-The overall application is a list of `Transfer` blockchain transactions that are captured in a database. They consist of a _sender_, _recipient_ and _amount_ _(amount is denoted in WEI, one ETH being 10 \*\* 18 WEI. You can use [this calculator](https://eth-converter.com/) if you need quick conversions)._
-
-![Transactions List Coding Challenge Screenshot](/assets/screenshot-transactions-list-3.png)
-
 ## Tech Stack
 
 This app has been set up using the following tech stack:
