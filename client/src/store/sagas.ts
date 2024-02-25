@@ -35,8 +35,8 @@ function* sendTransaction(action: any): any {
 
   //AP-FIX-5 - assign payload information to the transaction
   const transaction: TransactionRequest = {
-    to: randomAddress(), //could take recipient if it was a valid one
-    value: 0, //amount passed here in WEI from form
+    to: randomAddress(), //could take recipient from payload
+    value: 0, //could take value from payload - amount passed here in WEI from form
   };
 
   try {
