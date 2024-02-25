@@ -16,7 +16,6 @@ import { SaveTransaction } from "../queries";
 function* sendTransaction(action: any): any {
   //AP-FIX-5 - access payload information
   const { value, sender, recipient } = action.payload;
-  console.log(value, sender, recipient);
 
   const provider = new JsonRpcProvider("http://localhost:8545");
 
@@ -36,7 +35,7 @@ function* sendTransaction(action: any): any {
   //AP-FIX-5 - assign payload information to the transaction
   const transaction: TransactionRequest = {
     to: randomAddress(), //could take recipient from payload
-    value: 0, //could take value from payload - amount passed here in WEI from form
+    value: value ? value : 1000000000000000000, //value from payload - amount passed here in WEI from form
   };
 
   try {
